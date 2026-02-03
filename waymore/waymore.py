@@ -3188,13 +3188,21 @@ def getAlienVaultUrls():
                 )
 
         if not args.check_only:
-            linkCountAlienVault = len(linksFoundAlienVault)
-            write(
-                colored("AlienVault - [ INFO ] Links found on alienvault.com: ", "cyan")
-                + colored(str(linkCountAlienVault), "white")
-            )
-            linksFound.update(linksFoundAlienVault)
-            linksFoundAlienVault.clear()
+            if linksFoundAlienVault is not None:
+                linkCountAlienVault = len(linksFoundAlienVault)
+                write(
+                    colored("AlienVault - [ INFO ] Links found on alienvault.com: ", "cyan")
+                    + colored(str(linkCountAlienVault), "white")
+                )
+                if linksFound is not None:
+                    linksFound.update(linksFoundAlienVault)
+                linksFoundAlienVault.clear()
+            else:
+                linkCountAlienVault = 0
+                write(
+                    colored("AlienVault - [ INFO ] Links found on alienvault.com: ", "cyan")
+                    + colored("0", "white")
+                )
 
     except Exception as e:
         writerr(colored("ERROR getAlienVaultUrls 1: " + str(e), "red"))
@@ -3294,7 +3302,8 @@ def processURLScanUrl(url, httpCode, mimeType, urlscanID=""):
                 if verbose():
                     if mimeType.strip() != "":
                         with links_lock:
-                            linkMimes.add(mimeType)
+                            if linkMimes is not None:
+                                linkMimes.add(mimeType)
 
         # Add link if it passed filters
         if addLink:
@@ -3314,6 +3323,9 @@ def processURLScanUrl(url, httpCode, mimeType, urlscanID=""):
             )
             if match is not None:
                 if args.mode in ("U", "B"):
+                    # Ensure linksFoundURLScan is initialized (can be None during concurrent execution)
+                    if linksFoundURLScan is None:
+                        linksFoundURLScan = set()
                     linksFoundAdd(url, linksFoundURLScan)
                 # If Response mode is requested then add the DOM ID to try later, for the number of responses wanted
                 if urlscanID != "" and args.mode in ("R", "B"):
@@ -4494,7 +4506,7 @@ def getURLScanUrls():
                                 stopSourceURLScan = True
 
             # Show the MIME types found (in case user wants to exclude more)
-            if verbose() and len(linkMimes) > 0 and args.mode != "R":
+            if verbose() and linkMimes is not None and len(linkMimes) > 0 and args.mode != "R":
                 linkMimes.discard("warc/revisit")
                 write(
                     colored("URLScan - [ INFO ] MIME types found: ", "magenta")
@@ -4503,13 +4515,21 @@ def getURLScanUrls():
                 )
 
             if args.mode != "R":
-                linkCountURLScan = len(linksFoundURLScan)
-                write(
-                    colored("URLScan - [ INFO ] Links found on urlscan.io: ", "cyan")
-                    + colored(str(linkCountURLScan), "white")
-                )
-                linksFound.update(linksFoundURLScan)
-                linksFoundURLScan.clear()
+                if linksFoundURLScan is not None:
+                    linkCountURLScan = len(linksFoundURLScan)
+                    write(
+                        colored("URLScan - [ INFO ] Links found on urlscan.io: ", "cyan")
+                        + colored(str(linkCountURLScan), "white")
+                    )
+                    if linksFound is not None:
+                        linksFound.update(linksFoundURLScan)
+                    linksFoundURLScan.clear()
+                else:
+                    linkCountURLScan = 0
+                    write(
+                        colored("URLScan - [ INFO ] Links found on urlscan.io: ", "cyan")
+                        + colored("0", "white")
+                    )
 
     except Exception as e:
         writerr(colored("ERROR getURLScanUrls 1: " + str(e), "red"))
@@ -4973,7 +4993,7 @@ def getWaybackUrls():
                     p.join()
 
             # Show the MIME types found (in case user wants to exclude more)
-            if verbose() and len(linkMimes) > 0:
+            if verbose() and linkMimes is not None and len(linkMimes) > 0:
                 linkMimes.discard("warc/revisit")
                 write(
                     colored("Wayback - [ INFO ] MIME types found: ", "magenta")
@@ -4983,15 +5003,27 @@ def getWaybackUrls():
                 linkMimes = None
 
             if not args.xwm:
-                linkCountWayback = len(linksFoundWayback)
-                write(
-                    colored(
-                        "Wayback - [ INFO ] Links found on Wayback Machine (archive.org): ", "cyan"
+                if linksFoundWayback is not None:
+                    linkCountWayback = len(linksFoundWayback)
+                    write(
+                        colored(
+                            "Wayback - [ INFO ] Links found on Wayback Machine (archive.org): ",
+                            "cyan",
+                        )
+                        + colored(str(linkCountWayback), "white")
                     )
-                    + colored(str(linkCountWayback), "white")
-                )
-                linksFound.update(linksFoundWayback)
-                linksFoundWayback.clear()
+                    if linksFound is not None:
+                        linksFound.update(linksFoundWayback)
+                    linksFoundWayback.clear()
+                else:
+                    linkCountWayback = 0
+                    write(
+                        colored(
+                            "Wayback - [ INFO ] Links found on Wayback Machine (archive.org): ",
+                            "cyan",
+                        )
+                        + colored("0", "white")
+                    )
 
     except Exception as e:
         writerr(colored("ERROR getWaybackUrls 1: " + str(e), "red"))
@@ -5449,7 +5481,7 @@ def getCommonCrawlUrls():
                     p.join()
 
                 # Show the MIME types found (in case user wants to exclude more)
-                if verbose() and len(linkMimes) > 0:
+                if verbose() and linkMimes is not None and len(linkMimes) > 0:
                     linkMimes.discard("warc/revisit")
                     write(
                         colored("CommonCrawl - [ INFO ] MIME types found: ", "magenta")
@@ -5457,13 +5489,21 @@ def getCommonCrawlUrls():
                         + "\n"
                     )
 
-                linkCountCommonCrawl = len(linksFoundCommonCrawl)
-                write(
-                    colored("CommonCrawl - [ INFO ] Links found on commoncrawl.org: ", "cyan")
-                    + colored(str(linkCountCommonCrawl), "white")
-                )
-                linksFound.update(linksFoundCommonCrawl)
-                linksFoundCommonCrawl.clear()
+                if linksFoundCommonCrawl is not None:
+                    linkCountCommonCrawl = len(linksFoundCommonCrawl)
+                    write(
+                        colored("CommonCrawl - [ INFO ] Links found on commoncrawl.org: ", "cyan")
+                        + colored(str(linkCountCommonCrawl), "white")
+                    )
+                    if linksFound is not None:
+                        linksFound.update(linksFoundCommonCrawl)
+                    linksFoundCommonCrawl.clear()
+                else:
+                    linkCountCommonCrawl = 0
+                    write(
+                        colored("CommonCrawl - [ INFO ] Links found on commoncrawl.org: ", "cyan")
+                        + colored("0", "white")
+                    )
 
     except Exception as e:
         writerr(colored("ERROR getCommonCrawlUrls 1: " + str(e), "red"))
@@ -5678,13 +5718,21 @@ def getVirusTotalUrls():
                 processVirusTotalUrl(url)
 
             # Show links found
-            linkCountVirusTotal = len(linksFoundVirusTotal)
-            write(
-                colored("VirusTotal - [ INFO ] Links found on virustotal.com: ", "cyan")
-                + colored(str(linkCountVirusTotal), "white")
-            )
-            linksFound.update(linksFoundVirusTotal)
-            linksFoundVirusTotal.clear()
+            if linksFoundVirusTotal is not None:
+                linkCountVirusTotal = len(linksFoundVirusTotal)
+                write(
+                    colored("VirusTotal - [ INFO ] Links found on virustotal.com: ", "cyan")
+                    + colored(str(linkCountVirusTotal), "white")
+                )
+                if linksFound is not None:
+                    linksFound.update(linksFoundVirusTotal)
+                linksFoundVirusTotal.clear()
+            else:
+                linkCountVirusTotal = 0
+                write(
+                    colored("VirusTotal - [ INFO ] Links found on virustotal.com: ", "cyan")
+                    + colored("0", "white")
+                )
 
     except Exception as e:
         writerr(colored(f"ERROR getVirusTotalUrls: {e}", "red"))
@@ -6001,13 +6049,21 @@ def getIntelxUrls():
         if not intelxAPIIssue:
             processIntelxType(3, credits)
 
-        linkCountIntelx = len(linksFoundIntelx)
-        write(
-            colored("IntelX - [ INFO ] Links found on intelx.io: ", "cyan")
-            + colored(str(linkCountIntelx), "white")
-        )
-        linksFound.update(linksFoundIntelx)
-        linksFoundIntelx.clear()
+        if linksFoundIntelx is not None:
+            linkCountIntelx = len(linksFoundIntelx)
+            write(
+                colored("IntelX - [ INFO ] Links found on intelx.io: ", "cyan")
+                + colored(str(linkCountIntelx), "white")
+            )
+            if linksFound is not None:
+                linksFound.update(linksFoundIntelx)
+            linksFoundIntelx.clear()
+        else:
+            linkCountIntelx = 0
+            write(
+                colored("IntelX - [ INFO ] Links found on intelx.io: ", "cyan")
+                + colored("0", "white")
+            )
 
     except Exception as e:
         writerr(colored("ERROR getIntelxUrls 1: " + str(e), "red"))
@@ -6292,15 +6348,23 @@ def getGhostArchiveUrls():
         if not args.check_only:
             # Count links based on mode - in R mode, count response links; in U/B mode, count URL links
             if args.mode == "R":
-                linkCountGhostArchive = len(ghostArchiveRequestLinks)
+                if ghostArchiveRequestLinks is not None:
+                    linkCountGhostArchive = len(ghostArchiveRequestLinks)
+                else:
+                    linkCountGhostArchive = 0
             else:
-                linkCountGhostArchive = len(linksFoundGhostArchive)
+                if linksFoundGhostArchive is not None:
+                    linkCountGhostArchive = len(linksFoundGhostArchive)
+                else:
+                    linkCountGhostArchive = 0
             write(
                 colored("GhostArchive - [ INFO ] Links found on ghostarchive.org: ", "cyan")
                 + colored(str(linkCountGhostArchive), "white")
             )
-            linksFound.update(linksFoundGhostArchive)
-            linksFoundGhostArchive.clear()
+            if linksFoundGhostArchive is not None:
+                if linksFound is not None:
+                    linksFound.update(linksFoundGhostArchive)
+                linksFoundGhostArchive.clear()
 
     except Exception as e:
         writerr(colored("ERROR getGhostArchiveUrls 1: " + str(e), "red"))

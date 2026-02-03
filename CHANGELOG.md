@@ -1,5 +1,11 @@
 ## Changelog
 
+- v8.4
+
+  - Changed
+
+    - BUG FIX: The error `ERROR processURLScanUrl 1: 'NoneType' object has no attribute 'add'` was fixed by ensuring that the `linksFoundURLScan` and `linkMimes` variables are initialized before they are used. A similar fix was applied to many other variables to prevent similar errors.
+
 - v8.3
 
   - Changed
