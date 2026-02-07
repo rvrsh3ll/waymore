@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from signal import SIGINT, signal
 from typing import Optional
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 import requests
 import tldextract
@@ -1902,7 +1902,8 @@ def linksFoundResponseAdd(link):
             parsed_url = linkWithoutTimestamp
 
         # Don't write it if the link does not contain the requested domain (this can sometimes happen)
-        if parsed_url.lower().find(checkInput.lower()) >= 0:
+        # Use URL decoding to handle %20 spaces and case-insensitive comparison
+        if unquote(parsed_url).lower().find(unquote(checkInput).lower()) >= 0:
             with links_lock:
                 linksFound.add(link)
             # If streaming is enabled and mode is 'U', print the link to stdout
@@ -1935,7 +1936,8 @@ def linksFoundAdd(link, source_set=None):
             parsed_url = link
 
         # Don't write it if the link does not contain the requested domain (this can sometimes happen)
-        if parsed_url.find(checkInput) >= 0:
+        # Use URL decoding to handle %20 spaces and case-insensitive comparison
+        if unquote(parsed_url).lower().find(unquote(checkInput).lower()) >= 0:
             with links_lock:
                 if source_set is not None:
                     source_set.add(link)
@@ -8269,7 +8271,13 @@ def main():
         # For each input (maybe multiple if a file was passed)
         for inpt in inputValues:
 
-            argsInput = inpt.strip().rstrip("\n").strip(".").lower()
+            # Strip and clean the input, but only lowercase the hostname (paths are case-sensitive)
+            cleaned = inpt.strip().rstrip("\n").strip(".")
+            if "/" in cleaned:
+                hostname_part, path_part = cleaned.split("/", 1)
+                argsInput = hostname_part.lower() + "/" + path_part
+            else:
+                argsInput = cleaned.lower()
 
             # Get the input hostname
             tldExtract = tldextract.extract(argsInput)

@@ -1,5 +1,12 @@
 ## Changelog
 
+- v8.5
+
+  - Changed
+
+    - BUG FIX: Fixed [Issue #80](https://github.com/xnl-h4ck3r/waymore/issues/80) - Input paths containing spaces (e.g., `thetrove.is/Books/Zardoz RPG/`) were failing because URL-encoded spaces (`%20`) in returned URLs didn't match the literal spaces in the input. Now uses URL decoding before comparison.
+    - BUG FIX: Fixed [Issue #80](https://github.com/xnl-h4ck3r/waymore/issues/80) - Input paths were incorrectly forced to lowercase. URL paths are case-sensitive, so now only the hostname portion is lowercased while the path case is preserved.
+
 - v8.4
 
   - Changed
