@@ -2771,8 +2771,6 @@ def validateArgDate(x):
     return x
 
 
-
-
 def cdxKeywordsFilter(pattern, filterField="original"):
     """
     Build a filter=original:... string for use in the Wayback CDX API.
@@ -2799,9 +2797,10 @@ def cdxKeywordsFilter(pattern, filterField="original"):
         r'\\.js(\\?.*|$)' -> filter=original:.*(\. js(\\?.*|$))
         r'\\$'             -> filter=original:.*.(\\$).*  (escaped $, literal)
     """
-    has_end_anchor = bool(re.search(r'(?<!\\)\$', pattern))
+    has_end_anchor = bool(re.search(r"(?<!\\)\$", pattern))
     suffix = "" if has_end_anchor else ".*"
     return "&filter=" + filterField + ":.*(" + pattern + ")" + suffix
+
 
 def validateArgMimeTypes(x):
     """
@@ -4850,9 +4849,7 @@ def getWaybackUrls():
         filterKeywords = ""
         if args.keywords_only:
             if args.keywords_only == "#CONFIG":
-                filterKeywords = cdxKeywordsFilter(
-                    re.escape(FILTER_KEYWORDS).replace(",", "|")
-                )
+                filterKeywords = cdxKeywordsFilter(re.escape(FILTER_KEYWORDS).replace(",", "|"))
             else:
                 filterKeywords = cdxKeywordsFilter(args.keywords_only)
 
@@ -4935,7 +4932,11 @@ def getWaybackUrls():
 
                 # If a Gateway Timeout, show a hint if -ko was used
                 if resp.status_code in (502, 504):
-                    msg = "Wayback - [ " + str(resp.status_code) + " ] Gateway Timeout from the Wayback Machine (Archive.org)."
+                    msg = (
+                        "Wayback - [ "
+                        + str(resp.status_code)
+                        + " ] Gateway Timeout from the Wayback Machine (Archive.org)."
+                    )
                     if args.keywords_only:
                         msg += (
                             " This may be caused by a complex -ko / --keywords-only regex."
@@ -7046,9 +7047,7 @@ def processResponsesWayback():
             filterKeywords = ""
             if args.keywords_only:
                 if args.keywords_only == "#CONFIG":
-                    filterKeywords = cdxKeywordsFilter(
-                        re.escape(FILTER_KEYWORDS).replace(",", "|")
-                    )
+                    filterKeywords = cdxKeywordsFilter(re.escape(FILTER_KEYWORDS).replace(",", "|"))
                 else:
                     filterKeywords = cdxKeywordsFilter(args.keywords_only)
 
@@ -8280,8 +8279,8 @@ def main():
         except re.error as e:
             writerr(
                 colored(
-                    f'ERROR: -ra / --regex-after value is not a valid regex: {e}\n'
-                    'TIP: Use single quotes to avoid shell expansion, e.g. -ra \'\\. js(\\?|$)\'',
+                    f"ERROR: -ra / --regex-after value is not a valid regex: {e}\n"
+                    "TIP: Use single quotes to avoid shell expansion, e.g. -ra '\\. js(\\?|$)'",
                     "red",
                 )
             )
@@ -8292,8 +8291,8 @@ def main():
         except re.error as e:
             writerr(
                 colored(
-                    f'ERROR: -ko / --keywords-only value is not a valid regex: {e}\n'
-                    'TIP: Use single quotes to avoid shell expansion, e.g. -ko \'\\. js(\\?|$)\'',
+                    f"ERROR: -ko / --keywords-only value is not a valid regex: {e}\n"
+                    "TIP: Use single quotes to avoid shell expansion, e.g. -ko '\\. js(\\?|$)'",
                     "red",
                 )
             )
