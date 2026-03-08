@@ -7959,9 +7959,67 @@ async def fetch_all_sources_async():
                 )
 
 
+def ensureConfigExists():
+    """
+    Ensure the default config file exists before argument parsing.
+    This is called at the very start of main() so the config is created
+    even when running with -h or with no arguments.
+    """
+    try:
+        # Determine the default config path based on the OS
+        if os.name == "nt":
+            waymoreCfgPath = Path(os.path.join(os.getenv("APPDATA", ""), "waymore"))
+        elif sys.platform == "darwin":
+            waymoreCfgPath = Path(os.path.expanduser("~/Library/Application Support/waymore"))
+        else:
+            waymoreCfgPath = Path(os.path.expanduser("~/.config/waymore"))
+
+        configPath = waymoreCfgPath / "config.yml"
+
+        if not os.path.isfile(configPath):
+            # Make sure the directory exists
+            os.makedirs(configPath.parent, exist_ok=True)
+            # Create the default config content using the DEFAULT_* constants
+            defaultConfig = f"""FILTER_CODE: {DEFAULT_FILTER_CODE}
+FILTER_MIME: {DEFAULT_FILTER_MIME}
+FILTER_URL: {DEFAULT_FILTER_URL}
+FILTER_KEYWORDS: {DEFAULT_FILTER_KEYWORDS}
+URLSCAN_API_KEY:
+VIRUSTOTAL_API_KEY:
+CONTINUE_RESPONSES_IF_PIPED: True
+WEBHOOK_DISCORD: YOUR_WEBHOOK
+TELEGRAM_BOT_TOKEN: YOUR_TOKEN
+TELEGRAM_CHAT_ID: YOUR_CHAT_ID
+DEFAULT_OUTPUT_DIR:
+INTELX_API_KEY:
+SOURCE_IP:
+"""
+            with open(configPath, "w", encoding="utf-8") as f:
+                f.write(defaultConfig)
+            writerr(
+                colored(
+                    'Config file not found - created default config at "' + str(configPath) + '"',
+                    "yellow",
+                )
+            )
+    except Exception as e:
+        try:
+            writerr(
+                colored(
+                    "Config file not found, but failed to create default config file: " + str(e),
+                    "red",
+                )
+            )
+        except Exception:
+            pass
+
+
 # Run waymore
 def main():
     global args, DEFAULT_TIMEOUT, inputValues, argsInput, linksFound, linkMimes, successCount, failureCount, fileCount, totalResponses, totalPages, indexFile, path, stopSource, stopProgram, VIRUSTOTAL_API_KEY, inputIsSubDomain, argsInputHostname, WEBHOOK_DISCORD, responseOutputDirectory, fileCount, INTELX_API_KEY, stopSourceAlienVault, stopSourceCommonCrawl, stopSourceWayback, stopSourceURLScan, stopSourceVirusTotal, stopSourceIntelx, stopSourceGhostArchive, extraWarcLinks
+
+    # Ensure the default config file exists before anything else
+    ensureConfigExists()
 
     # Tell Python to run the handler() function when SIGINT is received
     signal(SIGINT, handler)

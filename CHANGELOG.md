@@ -1,5 +1,10 @@
 ## Changelog
 
+- v8.7
+
+  - New
+    - If the `config.yml` file is not found in the expected config directory (e.g. `~/.config/waymore/` on Linux or `%APPDATA%/waymore/` on Windows), it will be automatically created with default values. This fixes the issue where installing with `pipx` did not create the `config.yml` file.
+
 - v8.6
 
   - Changed
